@@ -23,7 +23,8 @@ app.use(
   })
 );
 
-app.use('/api/auth',authRoutes);   
+app.use('/api/auth',authRoutes);
+app.use('/api/events', require('./routes/event.routes'));
 
 
 app.listen(PORT,()=>{

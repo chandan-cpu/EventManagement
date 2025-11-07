@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Menu, X, Search, Calendar, MapPin, User, LogOut, Clock, Filter } from 'lucide-react';
+import api from '../axios';
 
 const EventManagementPanel = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -10,52 +11,60 @@ const EventManagementPanel = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   // Sample events data
-  const [events, setEvents] = useState([
-    {
-      id: 1,
-      title: 'Tech Conference 2025',
-      date: '2025-11-15',
-      time: '10:00 AM',
-      venue: 'Convention Center, Delhi',
-      description: 'Annual technology conference featuring industry leaders and innovative startups.',
-      image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=250&fit=crop',
-      category: 'Conference',
-      rsvp: null
-    },
-    {
-      id: 2,
-      title: 'Marketing Workshop',
-      date: '2025-11-20',
-      time: '2:00 PM',
-      venue: 'Business Hub, Noida',
-      description: 'Learn the latest digital marketing strategies and tools for 2025.',
-      image: 'https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=400&h=250&fit=crop',
-      category: 'Workshop',
-      rsvp: null
-    },
-    {
-      id: 3,
-      title: 'Music Festival',
-      date: '2025-12-05',
-      time: '6:00 PM',
-      venue: 'Outdoor Arena, Gurgaon',
-      description: 'Experience an evening of live music from top artists across genres.',
-      image: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400&h=250&fit=crop',
-      category: 'Concert',
-      rsvp: null
-    },
-    {
-      id: 4,
-      title: 'Startup Networking Event',
-      date: '2025-11-25',
-      time: '5:00 PM',
-      venue: 'Co-working Space, Delhi',
-      description: 'Connect with entrepreneurs, investors, and innovators in the startup ecosystem.',
-      image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=250&fit=crop',
-      category: 'Seminar',
-      rsvp: null
-    }
-  ]);
+
+
+  const [events, setEvents] = useState([]);
+    //   time: '10:00 AM',
+    //   venue: 'Convention Center, Delhi',
+    //   description: 'Annual technology conference featuring industry leaders and innovative startups.',
+    //   image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400&h=250&fit=crop',
+    //   category: 'Conference',
+    //   rsvp: null
+    // },
+    // {
+    //   id: 2,
+    //   title: 'Marketing Workshop',
+    //   date: '2025-11-20',
+    //   time: '2:00 PM',
+    //   venue: 'Business Hub, Noida',
+    //   description: 'Learn the latest digital marketing strategies and tools for 2025.',
+    //   image: 'https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=400&h=250&fit=crop',
+    //   category: 'Workshop',
+    //   rsvp: null
+    // },
+    // {
+    //   id: 3,
+    //   title: 'Music Festival',
+    //   date: '2025-12-05',
+    //   time: '6:00 PM',
+    //   venue: 'Outdoor Arena, Gurgaon',
+    //   description: 'Experience an evening of live music from top artists across genres.',
+    //   image: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=400&h=250&fit=crop',
+    //   category: 'Concert',
+    //   rsvp: null
+    // },
+    // {
+    //   id: 4,
+    //   title: 'Startup Networking Event',
+    //   date: '2025-11-25',
+    //   time: '5:00 PM',
+    //   venue: 'Co-working Space, Delhi',
+    //   description: 'Connect with entrepreneurs, investors, and innovators in the startup ecosystem.',
+    //   image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=250&fit=crop',
+    //   category: 'Seminar',
+    //   rsvp: null
+    // }
+
+      const fetchEvents=async()=>{
+    //fetch events from backend
+    const response=await api.get('/events/getEvents');
+    const data=await response.data;
+    console.log(data);
+    setEvents(data.events);
+  }
+  useEffect(()=>{
+    fetchEvents();
+  },[])
 
   const handleRSVP = (eventId, status) => {
     setEvents(events.map(event => 
@@ -67,7 +76,7 @@ const EventManagementPanel = () => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          event.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesDate = !dateFilter || event.date === dateFilter;
-    const matchesLocation = !locationFilter || event.venue.toLowerCase().includes(locationFilter.toLowerCase());
+    const matchesLocation = !locationFilter || event?.location.toLowerCase().includes(locationFilter.toLowerCase());
     return matchesSearch && matchesDate && matchesLocation;
   });
 
@@ -94,7 +103,7 @@ const EventManagementPanel = () => {
   const EventCard = ({ event, showChangeOption = false }) => (
     <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg overflow-hidden transition-transform hover:scale-105 hover:shadow-xl`}>
       <div className="relative h-48 overflow-hidden">
-        <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
+        <img src={event.cloudinaryID} alt={event.title} className="w-full h-full object-cover" />
         <div className="absolute top-3 right-3 bg-white px-3 py-1 rounded-full text-xs font-semibold text-gray-700">
           {event.category}
         </div>
@@ -109,7 +118,7 @@ const EventManagementPanel = () => {
           </div>
           <div className="flex items-center text-sm text-gray-600">
             <MapPin className="w-4 h-4 mr-2" />
-            <span>{event.venue}</span>
+            <span>{event?.location}</span>
           </div>
         </div>
         
